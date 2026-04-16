@@ -26,7 +26,7 @@ export const PROJECT_TEMPLATES = [
   {
     id: 'vip',
     name: 'VIP 프로그램',
-    description: 'VIP 프로그램 운영 기본 태스크',
+    description: 'VIP 프로그램 기본 태스크',
     tasks: [
       { title: '연사 섭외', priority: 'high', offsetDays: 7 },
       { title: '계약서 처리', priority: 'high', offsetDays: 7 },
