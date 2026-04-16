@@ -175,9 +175,39 @@ export default function App() {
         <ProjectModal
           project={modal.data}
           onClose={() => setModal(null)}
-          onSave={(p) => {
-            if (modal.data) updateProject(modal.data.id, p)
-            else addProject({ ...p, id: uid() })
+          onSave={(p, template) => {
+            if (modal.data) {
+              updateProject(modal.data.id, p)
+            } else {
+              const newId = uid()
+              const newProject = { ...p, id: newId }
+              if (template) {
+                const base = new Date(p.startDate || todayISO())
+                const templateTasks = template.tasks.map((tt) => {
+                  const due = new Date(base)
+                  due.setDate(due.getDate() + (tt.offsetDays || 7))
+                  return {
+                    id: uid(),
+                    projectId: newId,
+                    title: tt.title,
+                    assignee: null,
+                    status: 'todo',
+                    priority: tt.priority || 'mid',
+                    startDate: p.startDate || todayISO(),
+                    dueDate: due.toISOString().slice(0, 10),
+                    notes: '',
+                    subtasks: [],
+                  }
+                })
+                setState((s) => ({
+                  ...s,
+                  projects: [...s.projects, newProject],
+                  tasks: [...s.tasks, ...templateTasks],
+                }))
+              } else {
+                addProject(newProject)
+              }
+            }
             setModal(null)
           }}
           onDelete={() => {

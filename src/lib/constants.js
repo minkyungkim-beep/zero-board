@@ -21,6 +21,24 @@ export const PROJECT_COLORS = [
   'bg-rose-300', 'bg-sky-300', 'bg-emerald-300', 'bg-violet-300', 'bg-amber-300',
 ]
 
+// 프로젝트 템플릿: 프로젝트 생성 시 선택하면 해당 태스크들이 자동 생성됨
+export const PROJECT_TEMPLATES = [
+  {
+    id: 'program',
+    name: '프로그램 운영',
+    description: 'VIP / 브랜딩 등 프로그램 기본 태스크',
+    tasks: [
+      { title: '연사 섭외', priority: 'high', offsetDays: 7 },
+      { title: '계약서 처리', priority: 'high', offsetDays: 7 },
+      { title: '노션 가이드 제작', priority: 'mid', offsetDays: 14 },
+      { title: '환불 규정 검토', priority: 'mid', offsetDays: 10 },
+      { title: '신청 구글폼 제작', priority: 'mid', offsetDays: 7 },
+      { title: '예치금 생성', priority: 'low', offsetDays: 14 },
+      { title: '운영팀 공유 내용 정리', priority: 'mid', offsetDays: 10 },
+    ],
+  },
+]
+
 export const todayISO = () => new Date().toISOString().slice(0, 10)
 
 export const DEFAULT_STATE = {

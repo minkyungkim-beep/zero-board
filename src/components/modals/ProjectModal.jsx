@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { PROJECT_COLORS } from '../../lib/constants'
+import { PROJECT_COLORS, PROJECT_TEMPLATES } from '../../lib/constants'
 import { todayISO } from '../../lib/utils'
 import { Modal, Field } from '../common/Modal'
 import { DateRangePicker } from '../common/DateRangePicker'
+import { Select } from '../common/Select'
 
 export function ProjectModal({ project, onClose, onSave, onDelete }) {
   const [form, setForm] = useState(
@@ -18,6 +19,10 @@ export function ProjectModal({ project, onClose, onSave, onDelete }) {
       description: '',
     }
   )
+  const [templateId, setTemplateId] = useState('')
+  const isNew = !project
+  const template = PROJECT_TEMPLATES.find((t) => t.id === templateId)
+
   return (
     <Modal onClose={onClose} title={project ? '프로젝트 편집' : '새 프로젝트'}>
       <div className="space-y-3">
@@ -25,9 +30,36 @@ export function ProjectModal({ project, onClose, onSave, onDelete }) {
           <input
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className="w-full px-3 py-2 border rounded"
+            className="w-full px-3 py-2 border rounded-lg"
+            placeholder="예: VIP 프로그램"
           />
         </Field>
+
+        {isNew && (
+          <Field label="템플릿">
+            <Select
+              value={templateId}
+              onChange={(v) => setTemplateId(v)}
+              options={[
+                { value: '', label: '없음 (빈 프로젝트)' },
+                ...PROJECT_TEMPLATES.map((t) => ({ value: t.id, label: t.name })),
+              ]}
+              placeholder="템플릿 선택"
+            />
+            {template && (
+              <div className="mt-2 px-3 py-2 bg-indigo-50 border border-indigo-100 rounded-lg text-xs text-indigo-700">
+                <div className="font-medium mb-1">{template.description}</div>
+                <div className="text-indigo-600 leading-relaxed">
+                  {template.tasks.map((t) => t.title).join(' · ')}
+                </div>
+                <div className="mt-1 text-indigo-500">
+                  저장 시 {template.tasks.length}개의 태스크가 자동 생성됩니다.
+                </div>
+              </div>
+            )}
+          </Field>
+        )}
+
         <DateRangePicker
           startDate={form.startDate || ''}
           endDate={form.endDate || ''}
@@ -40,7 +72,7 @@ export function ProjectModal({ project, onClose, onSave, onDelete }) {
           <textarea
             value={form.description || ''}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
-            className="w-full px-3 py-2 border rounded"
+            className="w-full px-3 py-2 border rounded-lg"
             rows={3}
           />
         </Field>
@@ -64,7 +96,7 @@ export function ProjectModal({ project, onClose, onSave, onDelete }) {
         {project && (
           <button
             onClick={onDelete}
-            className="px-4 py-2 text-rose-600 hover:bg-rose-50 rounded text-sm"
+            className="px-4 py-2 text-rose-600 hover:bg-rose-50 rounded-lg text-sm"
           >
             삭제
           </button>
@@ -72,13 +104,13 @@ export function ProjectModal({ project, onClose, onSave, onDelete }) {
         <div className="ml-auto flex gap-2">
           <button
             onClick={onClose}
-            className="px-4 py-2 border rounded text-sm hover:bg-slate-50"
+            className="px-4 py-2 border rounded-lg text-sm hover:bg-slate-50"
           >
             취소
           </button>
           <button
-            onClick={() => form.name.trim() && onSave(form)}
-            className="px-4 py-2 bg-indigo-600 text-white rounded text-sm hover:bg-indigo-700"
+            onClick={() => form.name.trim() && onSave(form, template)}
+            className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700"
           >
             저장
           </button>
