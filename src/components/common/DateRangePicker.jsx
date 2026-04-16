@@ -53,13 +53,32 @@ export function DateRangePicker({ startDate, endDate, onChangeStart, onChangeEnd
     if (!iso) return
     if (picking === 'start') {
       onChangeStart(iso)
+      // 시작일이 마감일보다 늦으면 마감일을 시작일로 맞춰줌
+      if (endDate && iso > endDate) onChangeEnd(iso)
       setPicking('end')
     } else if (picking === 'end') {
+      // 마감일이 시작일보다 이르면 시작일을 마감일로 맞춰줌
+      if (startDate && iso < startDate) onChangeStart(iso)
       onChangeEnd(iso)
       setPicking(null)
     } else {
       onChangeStart(iso)
+      if (endDate && iso > endDate) onChangeEnd(iso)
       setPicking('end')
+    }
+  }
+
+  // 입력창에서 직접 타이핑할 때도 유효성 보정
+  const handleStartChange = (v) => {
+    onChangeStart(v)
+    if (/^\d{4}-\d{2}-\d{2}$/.test(v) && endDate && v > endDate) {
+      onChangeEnd(v)
+    }
+  }
+  const handleEndChange = (v) => {
+    onChangeEnd(v)
+    if (/^\d{4}-\d{2}-\d{2}$/.test(v) && startDate && v < startDate) {
+      onChangeStart(v)
     }
   }
 
@@ -111,9 +130,11 @@ export function DateRangePicker({ startDate, endDate, onChangeStart, onChangeEnd
               const start = isStart(cell.iso)
               const end = isEnd(cell.iso)
               const selected = start || end
+              // 시작=끝일 때는 띠 없이 원만
+              const sameDay = startDate && endDate && startDate === endDate
               // band: continuous strip behind circles
-              const bandL = inRange || end   // left half of band
-              const bandR = inRange || start // right half of band
+              const bandL = !sameDay && (inRange || end)
+              const bandR = !sameDay && (inRange || start)
               return (
                 <div key={i} className="relative flex items-center justify-center h-9">
                   {/* Background band (left half + right half) */}
@@ -149,7 +170,7 @@ export function DateRangePicker({ startDate, endDate, onChangeStart, onChangeEnd
               type="text"
               value={startDate || ''}
               onFocus={() => setPicking('start')}
-              onChange={(e) => onChangeStart(e.target.value)}
+              onChange={(e) => handleStartChange(e.target.value)}
               placeholder="YYYY-MM-DD"
               className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-300 ${
                 picking === 'start' ? 'ring-1 ring-indigo-400 border-indigo-400' : ''
@@ -164,7 +185,7 @@ export function DateRangePicker({ startDate, endDate, onChangeStart, onChangeEnd
               type="text"
               value={endDate || ''}
               onFocus={() => setPicking('end')}
-              onChange={(e) => onChangeEnd(e.target.value)}
+              onChange={(e) => handleEndChange(e.target.value)}
               placeholder="YYYY-MM-DD"
               className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-300 ${
                 picking === 'end' ? 'ring-1 ring-indigo-400 border-indigo-400' : ''

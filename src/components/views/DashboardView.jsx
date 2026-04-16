@@ -11,7 +11,7 @@ function Stat({ label, value, color }) {
   )
 }
 
-export function DashboardView({ state, filtered, onEditTask, onEditProject, onOpenProjectTasks, onNewTask, onNewProject }) {
+export function DashboardView({ state, filtered, onEditTask, onEditProject, onOpenProjectTasks, onOpenMemberTasks, onNewTask, onNewProject }) {
   const stats = useMemo(() => {
     const total = filtered.length
     const done = filtered.filter((t) => t.status === 'done').length
@@ -62,7 +62,7 @@ export function DashboardView({ state, filtered, onEditTask, onEditProject, onOp
             + 프로젝트
           </button>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {state.projects.map((p) => {
             const tasks = filtered.filter((t) => t.projectId === p.id)
             const done = tasks.filter((t) => t.status === 'done').length
@@ -100,8 +100,13 @@ export function DashboardView({ state, filtered, onEditTask, onEditProject, onOp
         <h2 className="text-lg font-bold mb-3">팀원별 업무 현황</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {byMember.map((m) => (
-            <div key={m.id} className="bg-white rounded-md border p-4">
+            <div
+              key={m.id}
+              onClick={() => onOpenMemberTasks(m)}
+              className="bg-white rounded-md border p-4 cursor-pointer hover:shadow-sm transition-shadow"
+            >
               <div className="flex items-center gap-3 mb-3">
+                <div className={`w-3 h-3 rounded-full ${m.color}`} />
                 <div>
                   <div className="font-semibold">{m.name}</div>
                   <div className="text-xs text-slate-500">{m.role}</div>

@@ -3,6 +3,7 @@ import { STATUS, PRIORITY } from '../../lib/constants'
 import { todayISO, uid } from '../../lib/utils'
 import { Modal, Field } from '../common/Modal'
 import { DateRangePicker } from '../common/DateRangePicker'
+import { Select } from '../common/Select'
 
 export function TaskModal({ state, task, onClose, onSave, onDelete }) {
   const [form, setForm] = useState(
@@ -88,58 +89,40 @@ export function TaskModal({ state, task, onClose, onSave, onDelete }) {
         </Field>
         <div className="grid grid-cols-2 gap-3">
           <Field label="프로젝트">
-            <select
+            <Select
               value={form.projectId}
-              onChange={(e) => setForm({ ...form, projectId: e.target.value })}
-              className="w-full px-3 py-2 border rounded"
-            >
-              <option value="">(없음)</option>
-              {state.projects.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
+              onChange={(v) => setForm({ ...form, projectId: v })}
+              options={[
+                { value: '', label: '(없음)' },
+                ...state.projects.map((p) => ({ value: p.id, label: p.name, color: p.color })),
+              ]}
+              placeholder="프로젝트 선택"
+            />
           </Field>
           <Field label="담당자">
-            <select
+            <Select
               value={form.assignee || ''}
-              onChange={(e) => setForm({ ...form, assignee: e.target.value })}
-              className="w-full px-3 py-2 border rounded"
-            >
-              <option value="">(미지정)</option>
-              {state.members.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.name}
-                </option>
-              ))}
-            </select>
+              onChange={(v) => setForm({ ...form, assignee: v })}
+              options={[
+                { value: '', label: '(미지정)' },
+                ...state.members.map((m) => ({ value: m.id, label: m.name, color: m.color })),
+              ]}
+              placeholder="담당자 선택"
+            />
           </Field>
           <Field label="상태">
-            <select
+            <Select
               value={form.status}
-              onChange={(e) => setForm({ ...form, status: e.target.value })}
-              className="w-full px-3 py-2 border rounded"
-            >
-              {STATUS.map((s) => (
-                <option key={s.key} value={s.key}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
+              onChange={(v) => setForm({ ...form, status: v })}
+              options={STATUS.map((s) => ({ value: s.key, label: s.label }))}
+            />
           </Field>
           <Field label="우선순위">
-            <select
+            <Select
               value={form.priority}
-              onChange={(e) => setForm({ ...form, priority: e.target.value })}
-              className="w-full px-3 py-2 border rounded"
-            >
-              {Object.entries(PRIORITY).map(([k, v]) => (
-                <option key={k} value={k}>
-                  {v.label}
-                </option>
-              ))}
-            </select>
+              onChange={(v) => setForm({ ...form, priority: v })}
+              options={Object.entries(PRIORITY).map(([k, v]) => ({ value: k, label: v.label }))}
+            />
           </Field>
         </div>
         <DateRangePicker

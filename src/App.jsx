@@ -11,6 +11,7 @@ import { TaskModal } from './components/modals/TaskModal'
 import { ProjectModal } from './components/modals/ProjectModal'
 import { TeamModal } from './components/modals/TeamModal'
 import { ProjectTasksModal } from './components/modals/ProjectTasksModal'
+import { MemberTasksModal } from './components/modals/MemberTasksModal'
 
 export default function App() {
   const [state, setState] = useState(() => {
@@ -118,6 +119,7 @@ export default function App() {
             onEditTask={(t) => setModal({ type: 'task', data: t })}
             onEditProject={(p) => setModal({ type: 'project', data: p })}
             onOpenProjectTasks={(p) => setModal({ type: 'project-tasks', data: p })}
+            onOpenMemberTasks={(m) => setModal({ type: 'member-tasks', data: m })}
             onNewTask={() => setModal({ type: 'task' })}
             onNewProject={() => setModal({ type: 'project' })}
           />
@@ -184,6 +186,16 @@ export default function App() {
               setModal(null)
             }
           }}
+        />
+      )}
+      {modal?.type === 'member-tasks' && (
+        <MemberTasksModal
+          member={modal.data}
+          tasks={state.tasks.filter((t) => t.assignee === modal.data.id)}
+          projects={state.projects}
+          onClose={() => setModal(null)}
+          onToggleTask={(id, status) => updateTask(id, { status })}
+          onEditTask={(t) => setModal({ type: 'task', data: t })}
         />
       )}
       {modal?.type === 'project-tasks' && (
