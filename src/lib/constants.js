@@ -24,9 +24,9 @@ export const PROJECT_COLORS = [
 // 프로젝트 템플릿: 프로젝트 생성 시 선택하면 해당 태스크들이 자동 생성됨
 export const PROJECT_TEMPLATES = [
   {
-    id: 'program',
-    name: '프로그램 운영',
-    description: 'VIP / 브랜딩 등 프로그램 기본 태스크',
+    id: 'vip',
+    name: 'VIP 프로그램',
+    description: 'VIP 프로그램 운영 기본 태스크',
     tasks: [
       { title: '연사 섭외', priority: 'high', offsetDays: 7 },
       { title: '계약서 처리', priority: 'high', offsetDays: 7 },
