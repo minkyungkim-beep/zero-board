@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { STORAGE_KEY, DEFAULT_STATE } from './lib/constants'
+import { STORAGE_KEY, DEFAULT_STATE, deriveContractTasks } from './lib/constants'
 import { uid, todayISO } from './lib/utils'
 import { Header } from './components/Header'
 import { Sidebar } from './components/Sidebar'
@@ -30,6 +30,23 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
   }, [state])
+
+  // 라이브 이벤트의 '계약서 필요 + 담당자' 조합을 태스크로 자동 동기화
+  useEffect(() => {
+    setState((prev) => {
+      const desired = deriveContractTasks(prev.briefingEvents || [])
+      const nonContract = prev.tasks.filter((t) => !t.id?.startsWith('contract_'))
+      const merged = desired.map((ct) => {
+        const existing = prev.tasks.find((t) => t.id === ct.id)
+        return existing
+          ? { ...ct, status: existing.status, subtasks: existing.subtasks || ct.subtasks }
+          : ct
+      })
+      const newTasks = [...nonContract, ...merged]
+      if (JSON.stringify(newTasks) === JSON.stringify(prev.tasks)) return prev
+      return { ...prev, tasks: newTasks }
+    })
+  }, [state.briefingEvents])
 
   const update = (patcher) => setState((s) => patcher({ ...s }))
 

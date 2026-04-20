@@ -60,6 +60,7 @@ export const createSession = () => ({
   photoUrl: '',           // 얼굴 노출 시 사진 링크
   isNew: false,
   contractRequired: true,
+  contractAssignee: '',   // 계약서 작성 담당자 (member id)
   amount: '',
   note: '',
 })
@@ -95,6 +96,33 @@ export function buildSpeakerHistory(briefingEvents = []) {
     })
   })
   return Array.from(map.values()).sort((a, b) => b.appearances - a.appearances || a.speakerName.localeCompare(b.speakerName, 'ko'))
+}
+
+// 계약서 작성 필요 + 담당자가 지정된 세션을 자동으로 태스크 형태로 변환
+export function deriveContractTasks(briefingEvents = []) {
+  const tasks = []
+  briefingEvents.forEach((ev) => {
+    (ev.sessions || []).forEach((s, idx) => {
+      if (!s.contractRequired || !s.contractAssignee) return
+      const title = `계약서 · ${ev.summary || '라이브 이벤트'} ${idx + 1}부${
+        s.speakerName ? ` (${s.speakerName})` : ''
+      }`
+      tasks.push({
+        id: `contract_${s.id}`,
+        projectId: null,
+        title,
+        assignee: s.contractAssignee,
+        status: 'todo',
+        priority: 'high',
+        startDate: ev.date || '',
+        dueDate: ev.date || '',
+        notes: s.amount ? `금액: ${s.amount}` : '',
+        subtasks: [],
+        isContract: true,
+      })
+    })
+  })
+  return tasks
 }
 
 // 라이브 이벤트(하나의 날짜에 진행되는 설명회/박람회/세미나 단위)
