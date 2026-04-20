@@ -7,6 +7,7 @@ export function Sidebar({ view, setView, onManageTeam, onExport, onImport, onRes
     { key: 'kanban', label: '칸반' },
     { key: 'timeline', label: '타임라인' },
     { key: 'member', label: '팀원별 뷰' },
+    { key: 'briefing', label: '설명회' },
   ]
   const sideBtn =
     'w-full pl-5 pr-4 py-2 text-sm font-medium text-left transition text-slate-300 hover:bg-slate-800'

@@ -5,7 +5,7 @@ import { Modal, Field } from '../common/Modal'
 import { DateRangePicker } from '../common/DateRangePicker'
 import { Select } from '../common/Select'
 
-export function ProjectModal({ project, onClose, onSave, onDelete }) {
+export function ProjectModal({ project, members = [], onClose, onSave, onDelete }) {
   const [form, setForm] = useState(
     project || {
       name: '',
@@ -20,6 +20,7 @@ export function ProjectModal({ project, onClose, onSave, onDelete }) {
     }
   )
   const [templateId, setTemplateId] = useState('')
+  const [assignee, setAssignee] = useState('')
   const isNew = !project
   const template = PROJECT_TEMPLATES.find((t) => t.id === templateId)
 
@@ -36,18 +37,31 @@ export function ProjectModal({ project, onClose, onSave, onDelete }) {
         </Field>
 
         {isNew && (
-          <Field label="템플릿">
-            <Select
-              value={templateId}
-              onChange={(v) => setTemplateId(v)}
-              options={[
-                { value: '', label: '없음 (빈 프로젝트)' },
-                ...PROJECT_TEMPLATES.map((t) => ({ value: t.id, label: t.name })),
-              ]}
-              placeholder="템플릿 선택"
-            />
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="템플릿">
+              <Select
+                value={templateId}
+                onChange={(v) => setTemplateId(v)}
+                options={[
+                  { value: '', label: '없음 (빈 프로젝트)' },
+                  ...PROJECT_TEMPLATES.map((t) => ({ value: t.id, label: t.name })),
+                ]}
+                placeholder="템플릿 선택"
+              />
+            </Field>
+            <Field label="담당자">
+              <Select
+                value={assignee}
+                onChange={(v) => setAssignee(v)}
+                options={[
+                  { value: '', label: '(미지정)' },
+                  ...members.map((m) => ({ value: m.id, label: m.name, color: m.color })),
+                ]}
+                placeholder="담당자 선택"
+              />
+            </Field>
             {template && (
-              <div className="mt-2 px-3 py-2 bg-indigo-50 border border-indigo-100 rounded-lg text-xs text-indigo-700">
+              <div className="col-span-2 px-3 py-2 bg-indigo-50 border border-indigo-100 rounded-lg text-xs text-indigo-700">
                 <div className="font-medium mb-1">{template.description}</div>
                 <div className="text-indigo-600 leading-relaxed">
                   {template.tasks.map((t) => t.title).join(' · ')}
@@ -57,7 +71,7 @@ export function ProjectModal({ project, onClose, onSave, onDelete }) {
                 </div>
               </div>
             )}
-          </Field>
+          </div>
         )}
 
         <DateRangePicker
@@ -109,7 +123,7 @@ export function ProjectModal({ project, onClose, onSave, onDelete }) {
             취소
           </button>
           <button
-            onClick={() => form.name.trim() && onSave(form, template)}
+            onClick={() => form.name.trim() && onSave(form, template, assignee || null)}
             className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700"
           >
             저장

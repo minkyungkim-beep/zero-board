@@ -39,9 +39,77 @@ export const PROJECT_TEMPLATES = [
   },
 ]
 
+// 라이브 이벤트(설명회/박람회/세미나 등) 유형
+export const BRIEFING_TYPES = [
+  { value: 'online', label: '온라인' },
+  { value: 'offline', label: '오프라인' },
+]
+
+// 세션(연사) 기본 스키마 - 라이브 이벤트의 각 회차(1부/2부…, 자동 넘버링)
+export const createSession = () => ({
+  id: `sess_${Math.random().toString(36).slice(2, 10)}`,
+  timeSlot: '',
+  topic: '',
+  subTopic: '',
+  // 연사 정보
+  speakerName: '',        // 연사 (내부/실명)
+  disclosedName: '',      // 노출 이름
+  disclosedCompany: '',   // 노출 기업
+  publicProfile: '',      // 공개 가능한 프로필
+  faceDisclosed: false,   // 라이브 시 얼굴 노출
+  photoUrl: '',           // 얼굴 노출 시 사진 링크
+  isNew: false,
+  contractRequired: true,
+  amount: '',
+  note: '',
+})
+
+// 과거 라이브 이벤트에서 등장한 연사별 최신 정보를 집계 - 자동 완성용
+// 키: speakerName (trim + 소문자). 값: 가장 최근(event.date 기준) 세션 정보 + 누적 등장 수.
+export function buildSpeakerHistory(briefingEvents = []) {
+  const map = new Map()
+  briefingEvents.forEach((ev) => {
+    (ev.sessions || []).forEach((s) => {
+      const name = (s.speakerName || '').trim()
+      if (!name) return
+      const key = name.toLowerCase()
+      const date = ev.date || ''
+      const existing = map.get(key)
+      const isNewer = !existing || date >= (existing._latestDate || '')
+      const snapshot = {
+        key: name,
+        speakerName: name,
+        disclosedName: s.disclosedName || '',
+        disclosedCompany: s.disclosedCompany || '',
+        publicProfile: s.publicProfile || '',
+        faceDisclosed: !!s.faceDisclosed,
+        photoUrl: s.photoUrl || '',
+        _latestDate: date,
+        appearances: (existing?.appearances || 0) + 1,
+      }
+      if (isNewer) {
+        map.set(key, snapshot)
+      } else {
+        existing.appearances += 1
+      }
+    })
+  })
+  return Array.from(map.values()).sort((a, b) => b.appearances - a.appearances || a.speakerName.localeCompare(b.speakerName, 'ko'))
+}
+
+// 라이브 이벤트(하나의 날짜에 진행되는 설명회/박람회/세미나 단위)
+export const createLiveEvent = () => ({
+  id: `le_${Math.random().toString(36).slice(2, 10)}`,
+  briefingType: 'online',
+  date: '',
+  summary: '',
+  sessions: [createSession()],
+})
+
 export const todayISO = () => new Date().toISOString().slice(0, 10)
 
 export const DEFAULT_STATE = {
+  briefingEvents: [],
   members: [
     { id: 'm1', name: '밍', color: 'bg-rose-300', role: '팀장' },
     { id: 'm2', name: '파트원A', color: 'bg-sky-300', role: '파트원' },

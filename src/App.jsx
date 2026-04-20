@@ -7,6 +7,7 @@ import { DashboardView } from './components/views/DashboardView'
 import { KanbanView } from './components/views/KanbanView'
 import { TimelineView } from './components/views/TimelineView'
 import { MemberView } from './components/views/MemberView'
+import { BriefingView } from './components/views/BriefingView'
 import { TaskModal } from './components/modals/TaskModal'
 import { ProjectModal } from './components/modals/ProjectModal'
 import { TeamModal } from './components/modals/TeamModal'
@@ -43,6 +44,19 @@ export default function App() {
       ...s,
       projects: s.projects.filter((p) => p.id !== id),
       tasks: s.tasks.filter((t) => t.projectId !== id),
+    }))
+
+  const addBriefingEvent = (ev) =>
+    update((s) => ({ ...s, briefingEvents: [...(s.briefingEvents || []), ev] }))
+  const updateBriefingEvent = (id, patch) =>
+    update((s) => ({
+      ...s,
+      briefingEvents: (s.briefingEvents || []).map((e) => (e.id === id ? { ...e, ...patch } : e)),
+    }))
+  const deleteBriefingEvent = (id) =>
+    update((s) => ({
+      ...s,
+      briefingEvents: (s.briefingEvents || []).filter((e) => e.id !== id),
     }))
 
   const addTask = (t) => update((s) => ({ ...s, tasks: [...s.tasks, t] }))
@@ -150,6 +164,15 @@ export default function App() {
             onNewTask={() => setModal({ type: 'task' })}
           />
         )}
+        {view === 'briefing' && (
+          <BriefingView
+            events={state.briefingEvents || []}
+            members={state.members}
+            onAdd={addBriefingEvent}
+            onUpdate={updateBriefingEvent}
+            onDelete={deleteBriefingEvent}
+          />
+        )}
       </main>
       </div>
 
@@ -174,8 +197,9 @@ export default function App() {
       {modal?.type === 'project' && (
         <ProjectModal
           project={modal.data}
+          members={state.members}
           onClose={() => setModal(null)}
-          onSave={(p, template) => {
+          onSave={(p, template, assignee) => {
             if (modal.data) {
               updateProject(modal.data.id, p)
             } else {
@@ -190,7 +214,7 @@ export default function App() {
                     id: uid(),
                     projectId: newId,
                     title: tt.title,
-                    assignee: null,
+                    assignee: assignee || null,
                     status: 'todo',
                     priority: tt.priority || 'mid',
                     startDate: p.startDate || todayISO(),
