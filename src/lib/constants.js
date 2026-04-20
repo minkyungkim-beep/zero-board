@@ -1,16 +1,16 @@
 export const STORAGE_KEY = 'team-dashboard-v1'
 
 export const STATUS = [
-  { key: 'todo', label: 'To Do', color: 'bg-slate-100 border-slate-300' },
-  { key: 'in-progress', label: 'In Progress', color: 'bg-blue-50 border-blue-300' },
-  { key: 'review', label: 'Review', color: 'bg-amber-50 border-amber-300' },
-  { key: 'done', label: 'Done', color: 'bg-green-50 border-green-300' },
+  { key: 'todo',        label: 'To Do',       color: 'bg-slate-50 border-slate-200',   dot: 'bg-slate-400' },
+  { key: 'in-progress', label: 'In Progress', color: 'bg-indigo-50/70 border-indigo-200', dot: 'bg-indigo-500' },
+  { key: 'review',      label: 'Review',      color: 'bg-slate-100 border-slate-300',  dot: 'bg-indigo-300' },
+  { key: 'done',        label: 'Done',        color: 'bg-white border-slate-200',      dot: 'bg-slate-500' },
 ]
 
 export const PRIORITY = {
-  low: { label: '낮음', cls: 'bg-slate-100 text-slate-600' },
-  mid: { label: '보통', cls: 'bg-blue-100 text-blue-700' },
-  high: { label: '높음', cls: 'bg-rose-100 text-rose-700' },
+  low:  { label: '낮음', cls: 'bg-slate-100 text-slate-600' },
+  mid:  { label: '보통', cls: 'bg-indigo-50 text-indigo-700' },
+  high: { label: '높음', cls: 'bg-rose-50 text-rose-700' },
 }
 
 export const MEMBER_COLORS = [

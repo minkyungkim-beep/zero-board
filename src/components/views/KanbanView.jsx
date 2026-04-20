@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { STATUS, PRIORITY } from '../../lib/constants'
 import { todayISO, getWeekOf, formatWeekLabel } from '../../lib/utils'
 
-function KanbanCard({ task, state, onClick, onDragStart }) {
+function KanbanCard({ task, state, statusColor, onClick, onDragStart }) {
   const project = state.projects.find((p) => p.id === task.projectId)
   const member = state.members.find((m) => m.id === task.assignee)
   const overdue = task.status !== 'done' && task.dueDate && task.dueDate < todayISO()
@@ -13,15 +13,15 @@ function KanbanCard({ task, state, onClick, onDragStart }) {
       draggable
       onDragStart={onDragStart}
       onClick={onClick}
-      className="bg-white rounded p-3 border shadow-sm hover:shadow-md cursor-pointer transition"
+      className={`rounded-lg p-3 border hover:shadow-sm cursor-pointer transition ${statusColor}`}
     >
       {project && (
-        <div className="flex items-center gap-1 mb-2">
-          <div className={`w-2 h-2 rounded-sm ${project.color}`}></div>
-          <div className="text-xs text-slate-500 truncate">{project.name}</div>
+        <div className="flex items-center gap-1.5 mb-2">
+          <div className={`w-1.5 h-1.5 rounded-full ${project.color}`}></div>
+          <div className="text-[11px] text-slate-500 truncate">{project.name}</div>
         </div>
       )}
-      <div className="font-medium text-sm mb-2">{task.title}</div>
+      <div className="font-medium text-sm mb-2 text-slate-800 leading-snug">{task.title}</div>
       {totalSub > 0 && (
         <div className="text-xs text-slate-500 mb-2">
           ✓ {doneCount}/{totalSub}
@@ -36,7 +36,7 @@ function KanbanCard({ task, state, onClick, onDragStart }) {
         {task.dueDate && (
           <span
             className={`text-[10px] px-1.5 py-0.5 rounded ${
-              overdue ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 text-slate-600'
+              overdue ? 'bg-rose-50 text-rose-700' : 'bg-slate-100 text-slate-600'
             }`}
           >
             {task.dueDate.slice(5)}
@@ -108,19 +108,22 @@ export function KanbanView({ state, tasks, updateTask, onEditTask, onNewTask }) 
               key={s.key}
               onDragOver={(e) => {
                 e.preventDefault()
-                e.currentTarget.classList.add('drag-over')
+                e.currentTarget.classList.add('drag-over-col')
               }}
-              onDragLeave={(e) => e.currentTarget.classList.remove('drag-over')}
+              onDragLeave={(e) => e.currentTarget.classList.remove('drag-over-col')}
               onDrop={(e) => {
-                e.currentTarget.classList.remove('drag-over')
+                e.currentTarget.classList.remove('drag-over-col')
                 if (dragTask) updateTask(dragTask, { status: s.key })
                 setDragTask(null)
               }}
-              className={`rounded-md border-2 p-3 ${s.color} min-h-[400px]`}
+              className="min-h-[400px] rounded-lg transition"
             >
-              <div className="flex items-center justify-between mb-3">
-                <div className="font-semibold text-sm">{s.label}</div>
-                <div className="text-xs text-slate-500">{colTasks.length}</div>
+              <div className="flex items-center justify-between mb-3 px-1">
+                <div className="flex items-center gap-2">
+                  <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`}></span>
+                  <div className="font-semibold text-sm text-slate-700">{s.label}</div>
+                </div>
+                <div className="text-xs text-slate-400">{colTasks.length}</div>
               </div>
               <div className="space-y-2">
                 {colTasks.map((t) => (
@@ -128,6 +131,7 @@ export function KanbanView({ state, tasks, updateTask, onEditTask, onNewTask }) 
                     key={t.id}
                     task={t}
                     state={state}
+                    statusColor={s.color}
                     onClick={() => onEditTask(t)}
                     onDragStart={() => setDragTask(t.id)}
                   />
