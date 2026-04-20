@@ -1,6 +1,15 @@
 import { useRef } from 'react'
 
-export function Sidebar({ view, setView, onManageTeam, onExport, onImport, onReset }) {
+const STATUS_LABEL = {
+  local: { label: '로컬 저장소', dot: 'bg-slate-400', desc: 'Supabase 미설정' },
+  connecting: { label: '연결 중…', dot: 'bg-amber-400 animate-pulse', desc: '' },
+  syncing: { label: '동기화 중…', dot: 'bg-sky-400 animate-pulse', desc: '' },
+  synced: { label: '팀 동기화됨', dot: 'bg-emerald-400', desc: '실시간 공유' },
+  error: { label: '동기화 오류', dot: 'bg-rose-500', desc: '콘솔 확인' },
+}
+
+export function Sidebar({ view, setView, onManageTeam, onExport, onImport, onReset, cloudStatus = 'local' }) {
+  const s = STATUS_LABEL[cloudStatus] || STATUS_LABEL.local
   const fileRef = useRef()
   const tabs = [
     { key: 'dashboard', label: '대시보드' },
@@ -32,6 +41,10 @@ export function Sidebar({ view, setView, onManageTeam, onExport, onImport, onRes
         ))}
       </nav>
       <div className="mt-auto flex flex-col gap-1 pb-6 border-t border-slate-800 pt-4">
+        <div className="px-5 pb-3 flex items-center gap-2" title={s.desc}>
+          <span className={`w-2 h-2 rounded-full ${s.dot}`} />
+          <span className="text-[11px] text-slate-400">{s.label}</span>
+        </div>
         <button onClick={onManageTeam} className={sideBtn}>
           팀원 관리
         </button>

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import { STORAGE_KEY, DEFAULT_STATE, deriveContractTasks } from './lib/constants'
+import { DEFAULT_STATE, deriveContractTasks } from './lib/constants'
+import { useCloudState } from './lib/useCloudState'
 import { uid, todayISO } from './lib/utils'
 import { Header } from './components/Header'
 import { Sidebar } from './components/Sidebar'
@@ -15,21 +16,10 @@ import { ProjectTasksModal } from './components/modals/ProjectTasksModal'
 import { MemberTasksModal } from './components/modals/MemberTasksModal'
 
 export default function App() {
-  const [state, setState] = useState(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY)
-      return saved ? JSON.parse(saved) : DEFAULT_STATE
-    } catch {
-      return DEFAULT_STATE
-    }
-  })
+  const [state, setState, cloudStatus] = useCloudState()
   const [view, setView] = useState('dashboard')
   const [modal, setModal] = useState(null)
   const [filter, setFilter] = useState({ member: 'all', project: 'all', search: '' })
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
-  }, [state])
 
   // 라이브 이벤트의 '계약서 필요 + 담당자' 조합을 태스크로 자동 동기화
   useEffect(() => {
@@ -138,6 +128,7 @@ export default function App() {
         onExport={exportData}
         onImport={importData}
         onReset={resetAll}
+        cloudStatus={cloudStatus}
       />
       <div className="flex-1 flex flex-col min-w-0">
       <Header state={state} filter={filter} setFilter={setFilter} />
