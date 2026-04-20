@@ -22,15 +22,24 @@ export default function App() {
   const [filter, setFilter] = useState({ member: 'all', project: 'all', search: '' })
 
   // 라이브 이벤트의 '계약서 필요 + 담당자' 조합을 태스크로 자동 동기화
+  // 사용자가 태스크에서 직접 편집한 내용(제목/메모/우선순위/서브태스크/상태)은 유지하고,
+  // 라이브 이벤트 원본에서 파생된 값(담당자/기한)만 최신화.
   useEffect(() => {
     setState((prev) => {
       const desired = deriveContractTasks(prev.briefingEvents || [])
       const nonContract = prev.tasks.filter((t) => !t.id?.startsWith('contract_'))
       const merged = desired.map((ct) => {
         const existing = prev.tasks.find((t) => t.id === ct.id)
-        return existing
-          ? { ...ct, status: existing.status, subtasks: existing.subtasks || ct.subtasks }
-          : ct
+        if (!existing) return ct
+        return {
+          ...ct,
+          status: existing.status ?? ct.status,
+          priority: existing.priority ?? ct.priority,
+          title: existing.title || ct.title,
+          notes: existing.notes ?? ct.notes,
+          subtasks:
+            existing.subtasks && existing.subtasks.length ? existing.subtasks : ct.subtasks,
+        }
       })
       const newTasks = [...nonContract, ...merged]
       if (JSON.stringify(newTasks) === JSON.stringify(prev.tasks)) return prev
